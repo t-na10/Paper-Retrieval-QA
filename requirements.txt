@@ -1,9 +1,9 @@
 gradio
+dotenv
+subprocess
 openai
 langchain
 python-dotenv
 nougat-ocr
-llama-hub
-unstructured
 faiss-cpu # for cpu only environment (if you use gpu, use faiss-gpu)
 numpy==1.23.0
