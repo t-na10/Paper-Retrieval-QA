@@ -30,7 +30,7 @@ $ python3 demo.py
 
 :::mermaid
 flowchart
-    subgraph user
+    subgraph user  
 
         subgraph input
             Q[Question]
