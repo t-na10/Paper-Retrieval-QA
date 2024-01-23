@@ -1,9 +1,14 @@
 import subprocess
 import logging
 from pathlib import Path
-from langchain.text_splitter import MarkdownHeaderTextSplitter
-from langchain.prompts import PromptTemplate
+from langchain.text_splitter \
+    import MarkdownHeaderTextSplitter, SpacyTextSplitter
 
+
+# License:
+# Nougat codebase is licensed under MIT.
+# Nougat model weights are licensed under CC-BY-NC.
+# reference: https://github.com/facebookresearch/nougat
 
 # model tag : 0.1.0-small, 0.1.0-base
 def nougatOCR(pdf_path, output_dir="./data/output/", model="0.1.0-small"):
@@ -46,6 +51,16 @@ def nougatOCR(pdf_path, output_dir="./data/output/", model="0.1.0-small"):
         raise RuntimeError("Nougat OCR command failed.") from e
 
 
+# License:
+# Spacy is licensed under MIT.
+# 'en_core_web_sm' is licensed under MIT.
+# reference: https://spacy.io/usage/models
+
+# The process this time assumes English.
+# The pipeline of SpacyTextSplitter uses 'en_core_web_sm'
+# For Japanese, use 'ja_core_news_sm'
+# If an error occurs, run 'python -m spacy download en_core_web_sm'
+
 def text_splitter(path):
     """_Split a Markdown file by headers_
 
@@ -64,59 +79,40 @@ def text_splitter(path):
         ("####", "subsection"),
         ("######", "abstract"),
     ]
-    splitter = MarkdownHeaderTextSplitter(
+    markdown_splitter = MarkdownHeaderTextSplitter(
         headers_to_split_on=headers_to_split_on,
     )
-    texts = splitter.split_text(md)
+    texts = markdown_splitter.split_text(md)
 
+    try:
+        text_splitter = SpacyTextSplitter(
+            separator='.',
+            pipeline='en_core_web_sm',
+            max_length=50000,
+        )
+
+        texts = text_splitter.split_documents(texts)
+    except NameError:
+        cli_command = ["pip", "install", "--upgrade", "--quiet", "spacy"]
+        subprocess.run(cli_command)
+        cli_command = ["python", "-m", "spacy", "download", "en_core_web_sm"]
+        subprocess.run(cli_command)
+        text_splitter = SpacyTextSplitter(
+            separator='.',
+            pipeline='en_core_web_sm',
+            max_length=10000,
+        )
+        texts = text_splitter.split_documents(texts)
+    except OSError:
+        cli_command = ["python", "-m", "spacy", "download", "en_core_web_sm"]
+        subprocess.run(cli_command)
+        text_splitter = SpacyTextSplitter(
+            separator='.',
+            pipeline='en_core_web_sm',
+            max_length=10000,
+        )
+        texts = text_splitter.split_documents(texts)
     return texts
-
-
-"""prompt_qa's template
-
-あなたはプロの研究者です。あなたが得意な専門分野に関する文章を正確に理解し、答えることに努めてください。
-もし以下の情報が探している情報に関連していない場合は、そのトピックに関する自身の知識を用いて質問に答えてください。
-
-{context}
-
-質問文:{question}
-
-制約条件: {constraint}
-
-回答(日本語)
-"""
-
-
-def prompt_qa(question, constraint):
-    """_Generate prompt for QA_
-
-    Args:
-        question (str): question.
-        constraint (str): constraint.
-
-    Returns:
-        str: prompt.
-    """
-    DEFAULT_SYSTEM_PROMPT = """
-    あなたはプロの研究者です。あなたが得意な専門分野に関する文章を正確に理解し、答えることに努めてください。
-    もし以下の情報が探している情報に関連していない場合は、そのトピックに関する自身の知識を用いて質問に答えてください。
-    """
-    input_prompt = PromptTemplate(
-        input_variables=[
-            "DEFAULT_SYSTEM_PROMPT",
-            "context",
-            "question",
-            "constraint",
-        ],
-        template="{DEFAULT_SYSTEM_PROMPT}\n\n {context}\n\
-        質問文: {question}\n 制約条件: {constraint}\n 回答(日本語)",
-    )
-    prompt = input_prompt.format(
-        DEFAULT_SYSTEM_PROMPT=DEFAULT_SYSTEM_PROMPT,
-        question=question,
-        constraint=constraint,
-    )
-    return prompt
 
 
 # -------------------------------------------------------------------------------
@@ -139,5 +135,5 @@ def prompt_qa(question, constraint):
 
 # def mmd2doc(mmd_path):
 #     loader = UnstructuredMarkdownLoader(Path(mmd_path))
-#     documents = loader.l
+#     documents = loader.load_documents()
 #     return documents[0]

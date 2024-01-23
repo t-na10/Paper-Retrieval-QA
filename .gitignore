@@ -1,17 +1,23 @@
 ### https://github.com/t-na10/paper_RetrivalQA
 
-
+# env file
+./.env
 # pdf file
 *.pdf
-
 # mmd file
 *.mmd
 
 # __pycache__ file
-__pycache__/
-
-# log file
-*.log
-
+__pycache__
 # unit test file
 test.py
+# prottype file
+prototype.py
+
+# chainlit
+*.chainlit
+chainlit.md
+# log file
+*.log
+# db file
+db/*
