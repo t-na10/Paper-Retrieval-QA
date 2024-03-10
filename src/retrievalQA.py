@@ -1,19 +1,16 @@
 import os
-import openai
-
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain.chains import RetrievalQA
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores.chroma import Chroma
+from langchain_community.vectorstores import Chroma
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
-from utils import nougatOCR, text_splitter
+from src.utils import nougatOCR, text_splitter
 
 
 load_dotenv()
 
 
-def RQA(pdf_path, question='', chain_type='refine'):
+def RQA(pdf_path, question=""):
     """_Execute RetrievalQA_
 
     Args:
@@ -22,6 +19,7 @@ def RQA(pdf_path, question='', chain_type='refine'):
 
     Returns:
         str: result.
+        str: mmd_path.
     """
 
     pdf_name = pdf_path.split("/")[-1]
@@ -36,24 +34,10 @@ def RQA(pdf_path, question='', chain_type='refine'):
         model="gpt-3.5-turbo-16k",
         temperature=0,
         openai_api_key=os.environ["OPENAI_API_KEY"],
+        streaming=True,
     )
     db = Chroma(
-        persist_directory="./db",
         embedding_function=embeddings,
-    )
-
-    # Prompt
-    DEFAULT_CHAT_PROMPT = """
-    あなたはプロの研究者です。あなたが得意な専門分野に関する文章を正確に理解し、質問文に答えることに努めてください。
-
-    {context}
-
-    質問文: {question}
-    回答(日本語)
-    """
-    prompt_qa = PromptTemplate(
-        template=DEFAULT_CHAT_PROMPT,
-        input_variables=["context", "question"],
     )
 
     # Convert PDF to Markdown
@@ -61,18 +45,35 @@ def RQA(pdf_path, question='', chain_type='refine'):
         nougatOCR(pdf_path)
 
     # Chunking
-    texts = text_splitter(mmd_path)
+    texts, title = text_splitter(mmd_path)
     # Vector Store
     db.add_documents(texts)
 
-    # Retriever
+    # Prompt
+    DEFAULT_PROMPT = f"あなたはプロの研究者です。あなたが得意な専門分野に関する文章を正確に理解し、\
+        質問文に答えることに努めてください。与えられる論文のタイトルは {title} です。"
+
+    RETRIEVAL_PROMPT = """
+    与えられる論文の内容は、以下の通りです。
+    {context}
+
+    質問文: {question}
+    回答(日本語)
+    """
+    PROMPT = DEFAULT_PROMPT + RETRIEVAL_PROMPT
+    prompt_qa = PromptTemplate(
+        template=PROMPT,
+        input_variables=["context", "question"],
+    )
+
     chain_type_kwargs = {"prompt": prompt_qa}
+
     qa = RetrievalQA.from_chain_type(
-        llm=model,
         retriever=db.as_retriever(),
-        return_source_documents=True,
+        llm=model,
+        chain_type="stuff",
         chain_type_kwargs=chain_type_kwargs,
-        chain_type=chain_type
+        return_source_documents=False,
     )
     answer = qa(question)
-    return answer['result'], answer['source_documents']
+    return answer["result"]

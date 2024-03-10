@@ -1,9 +1,12 @@
-gradio
-openai
-langchain
-python-dotenv
-nougat-ocr
-llama-hub
-unstructured
-faiss-cpu # for cpu only environment (if you use gpu, use faiss-gpu)
+gradio>=4.1.1
+gradio_pdf==0.0.3
+openai>=1.8.0
+langchain>=0.0.353
+python-dotenv==1.0.0
+nougat-ocr==0.1.17
 numpy==1.23.0
+chainlit==0.7.700
+chromadb==0.4.21
+tiktoken
+spacy==3.6.1
+

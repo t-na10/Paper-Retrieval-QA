@@ -13,8 +13,13 @@
 ```sh
 $ python3 demo.py
 ```
+![gif](img/demo.gif)
 
-![Alt text](image.png)
+```sh
+$ chainlit run demo_chat.py
+```
+![gif](img/demo2.gif)
+
 
 ## Feature
 
@@ -30,7 +35,7 @@ $ python3 demo.py
 
 :::mermaid
 flowchart
-    subgraph user  
+    subgraph user
 
         subgraph input
             Q[Question]
@@ -76,7 +81,11 @@ $ cd PaperRetriveQA
 以下のコードを実行して、Python環境を構築する
 
 ```sh
-conda create --name <env_name> python=3.10.10 --file requirements.txt
+conda env create --file env.yml
+```
+
+```sh
+conda activate prqa_env
 ```
 
 ## Usage
@@ -95,15 +104,13 @@ OPENAI_API_KEY='ここにAPIキーを挿入してください'
 $ python3 demo.py
 ```
 
-URLをコピペして、ブラウザで開く
+チャットUIは以下のコードを実行する
 
-## Note
 
-### 今後の展望
+```sh
+$ python3 demo_chat.py
+```
 
-- MultiQueryRetrieverの検証
-- チャンクサイズの細分化
-- chatbot化
 
 ## License
 

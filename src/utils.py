@@ -11,6 +11,7 @@ from langchain.text_splitter \
 # reference: https://github.com/facebookresearch/nougat
 
 # model tag : 0.1.0-small, 0.1.0-base
+
 def nougatOCR(pdf_path, output_dir="./data/output/", model="0.1.0-small"):
     """_Convert a PDF file to an MMD(Markdown) file using nougatOCR_
 
@@ -83,7 +84,7 @@ def text_splitter(path):
         headers_to_split_on=headers_to_split_on,
     )
     texts = markdown_splitter.split_text(md)
-
+    title = texts[0].metadata['title']
     try:
         text_splitter = SpacyTextSplitter(
             separator='.',
@@ -112,28 +113,4 @@ def text_splitter(path):
             max_length=10000,
         )
         texts = text_splitter.split_documents(texts)
-    return texts
-
-
-# -------------------------------------------------------------------------------
-
-# if you want to use llama_hub.nougat_ocr, you can use this code.
-
-# from llama_hub.nougat_ocr import PDFNougatOCR
-
-# def pdf2doc(uploadable_pdf):
-#     reader = PDFNougatOCR()
-#     pdf_path = Path("/path/to/pdf")
-#     documents = reader.load_data(pdf_path)
-#     text = documents[0].text
-#     return text
-
-
-# if you want to use UnstructuredMarkdownLoader, you can use this code.
-
-# from langchain.document_loaders import UnstructuredMarkdownLoader
-
-# def mmd2doc(mmd_path):
-#     loader = UnstructuredMarkdownLoader(Path(mmd_path))
-#     documents = loader.load_documents()
-#     return documents[0]
+    return texts, title
