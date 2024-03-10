@@ -33,7 +33,7 @@ $ chainlit run demo_chat.py
 
 アップロードされた論文pdfファイルを英語の論文解析に特化した機械学習ベースOCR`nougat-ocr`でmmdファイルに変換し、特定のヘッダーレベルで分割、ベクトル埋め込みをベクトルDBにストアする。ユーザの質問に関して、ベクトルDBにクエリ検索を行い、関連した情報を取得して答えを返す。
 
-:::mermaid
+```mermaid
 flowchart
     subgraph user
 
@@ -59,7 +59,7 @@ flowchart
 
         end
 
-:::
+```
 
 ### ヘッダー分割により期待される効果
 
