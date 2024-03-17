@@ -1,6 +1,6 @@
 <div align="center">
 
-# Paper Retrieve QA
+# Paper Retrieval QA
 
 </div>
 
