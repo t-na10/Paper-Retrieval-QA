@@ -5,12 +5,12 @@ from langchain_community.vectorstores import Chroma
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
 from src.utils import nougatOCR, text_splitter
-
+import shutil
 
 load_dotenv()
 
 
-def RQA(pdf_path, question=""):
+def RQA(pdf, question=""):
     """_Execute RetrievalQA_
 
     Args:
@@ -22,7 +22,8 @@ def RQA(pdf_path, question=""):
         str: mmd_path.
     """
 
-    pdf_name = pdf_path.split("/")[-1]
+    pdf_name = pdf.split("/")[-1]
+    pdf_path = f"./data/pdf/{pdf_name}"
     mmd_name = pdf_name.replace(".pdf", ".mmd")
     mmd_path = f"./data/output/{mmd_name}"
 
@@ -39,6 +40,9 @@ def RQA(pdf_path, question=""):
     db = Chroma(
         embedding_function=embeddings,
     )
+
+    if not os.path.exists(pdf_path):
+        shutil.copyfile(pdf, pdf_path)
 
     # Convert PDF to Markdown
     if not os.path.exists(mmd_path):
