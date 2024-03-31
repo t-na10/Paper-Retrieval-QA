@@ -10,6 +10,7 @@ from langchain.chains import RetrievalQA
 import os
 from dotenv import load_dotenv
 from src.utils import nougatOCR, text_splitter
+import shutil
 
 load_dotenv()
 
@@ -45,8 +46,7 @@ async def on_chat_start():
     pdf_path = f"./data/pdf/{file.name}"
     mmd_path = f"./data/output/{file.name.replace('.pdf', '.mmd')}"
     if not os.path.exists(pdf_path):
-        with open(pdf_path, "wb") as f:
-            f.write(file.content)
+        shutil.copyfile(file.path, pdf_path)
 
     if not os.path.exists(mmd_path):
         # Convert PDF to Markdown
