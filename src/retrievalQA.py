@@ -32,7 +32,7 @@ def RQA(pdf, question=""):
         openai_api_type=os.environ["OPENAI_API_KEY"],
     )
     model = ChatOpenAI(
-        model="gpt-3.5-turbo-16k",
+        model="gpt-4o",
         temperature=0,
         openai_api_key=os.environ["OPENAI_API_KEY"],
         streaming=True,
