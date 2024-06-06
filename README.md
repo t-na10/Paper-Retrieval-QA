@@ -6,6 +6,8 @@
 
 論文に関する問い合わせ応答（要約・質問）を可能にするWebアプリ
 
+**本リポジトリは調整中のため[こちら](https://github.com/sakurai-lab/paper-retrieval-qa-chat-)参照ください**
+
 ## DEMO
 
 以下のコードでデモを実行できる
